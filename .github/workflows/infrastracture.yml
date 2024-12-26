@@ -39,6 +39,9 @@ jobs:
           cd terraform
           terraform init
           terraform apply --auto-approve
+      - name: Verify Terraform Outputs
+        run: | 
+          terraform output
 
       - name: Output EC2 Public IP
         run: |
