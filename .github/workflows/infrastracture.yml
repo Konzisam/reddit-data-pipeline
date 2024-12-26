@@ -12,8 +12,8 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: eu-central-1
-      TF_VAR_s3_bucket: samkons-reddit-dataengineering
-      TF_VAR_account_id: 026090546492
+      TF_VAR_s3_bucket: ${{ secrets.TF_VAR_s3_bucket}}
+      TF_VAR_account_id: ${{ secrets.TF_VAR_account_id }}
       TF_VAR_region: eu-central-1
       TF_VAR_vpc_cidr_block: ${{ secrets.TF_VAR_vpc_cidr_block }}
       TF_VAR_subnet_cidr_block: ${{ secrets.TF_VAR_subnet_cidr_block }}
