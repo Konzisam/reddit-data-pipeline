@@ -14,17 +14,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Download EC2 Public IP artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ec2-public-ip
-          path: .
 
-
-      - name: Load EC2 Public IP
-        run: |
-          export EC2_PUBLIC_IP=$(cat ec2_public_ip.txt)
-          echo "EC2_PUBLIC_IP=${EC2_PUBLIC_IP}" >> $GITHUB_ENV
+      - name: Retrieve EC2 Public IP
+        run: echo "EC2_PUBLIC_IP=${{ github.event.workflow_run.outputs.ec2_public_ip }}"
 
 
 
