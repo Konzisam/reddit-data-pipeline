@@ -29,10 +29,10 @@ def extract_posts(reddit_instance: Reddit, subreddit: str, time_filter: str, lim
     for post in posts:
         post_dict = vars(post)
         print("++++++++++++++++", post_dict.keys())
-    #     post = {key: post_dict[key] for key in POST_FIELDS}
-    #     post_lists.append(post)
-    #
-    # return post_lists
+        post = {key: post_dict[key] for key in POST_FIELDS}
+        post_lists.append(post)
+
+    return post_lists
 
 
 def transform_data(post_df: pd.DataFrame):
@@ -54,3 +54,17 @@ def transform_data(post_df: pd.DataFrame):
 def load_data_to_csv(data: pd.DataFrame, path: str):
     data.to_csv(path, index=False)
     print("completed tasks!!!!!")
+
+# replace saving data to memory with temporary files
+# def load_data_to_s3(data: pd.DataFrame, s3: s3fs.S3FileSystem, bucket: str, s3_file_name: str):
+#     # Create a temporary file
+#     with tempfile.NamedTemporaryFile(suffix='.csv', delete=True) as temp_file:
+#         temp_file_path = temp_file.name
+#
+#         # Save data to the temporary file
+#         data.to_csv(temp_file_path, index=False)
+#         print(f"Data written to temporary file: {temp_file_path}")
+#
+#         # Upload the temporary file to S3
+#         s3.put(temp_file_path, f'{bucket}/raw/{s3_file_name}')
+#         print(f"File uploaded to S3: {bucket}/raw/{s3_file_name}")

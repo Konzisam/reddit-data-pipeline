@@ -1,0 +1,156 @@
+# terraform import aws_vpc.prod-vpc vpc-xxxx
+# 1. Create vpc
+resource "aws_vpc" "prod-vpc" {
+  cidr_block = var.vpc_cidr_block
+}
+
+# terraform import aws_internet_gateway.gw igw-xxx
+# terraform state rm aws_internet_gateway.gw
+
+# 2.  Internet gateway
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.prod-vpc.id
+
+  tags = {
+    Name = "main"
+  }
+}
+
+# terraform import aws_subnet.subnet-1 subnet-xxx
+# 3. Route table
+resource "aws_route_table" "prod-route-table" {
+  vpc_id = aws_vpc.prod-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  route {
+    ipv6_cidr_block = "::/0"
+    gateway_id      = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "Prod"
+  }
+}
+
+resource "aws_subnet" "subnet-1" {
+  vpc_id            = aws_vpc.prod-vpc.id
+  cidr_block        = var.subnet_cidr_block
+  availability_zone = "${var.region}b"
+  tags = {
+    Name = "prod-subnet"
+  }
+}
+
+# 5. Associate subnet with Route Table
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.subnet-1.id
+  route_table_id = aws_route_table.prod-route-table.id
+}
+
+# terraform import aws_security_group.allow_web sg-xxx
+# 6. Create Security Group to allow port 22,80,443
+resource "aws_security_group" "allow_web" {
+  # name        = "airflow-server"
+  name = "terraform-20241221154209814700000001"
+  # description = "security group to allow only from my local"
+  description = "launch-wizard-1 created 2024-11-14T17:18:51.845Z"
+  vpc_id      = aws_vpc.prod-vpc.id
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.web_access_cidr_blocks]
+  }
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.web_access_cidr_blocks]
+  }
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.ssh_cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_web"
+  }
+  revoke_rules_on_delete = false
+
+  # lifecycle {
+  #   ignore_changes = [ingress, egress]
+  # }
+}
+
+# terraform import aws_network_interface.web-server-nic  eni-xxx
+# 7. Create a network interface with an ip in the subnet that was created in step 4
+resource "aws_network_interface" "web-server-nic" {
+  subnet_id       = aws_subnet.subnet-1.id
+  private_ips     = [var.private_ip]
+  security_groups = [aws_security_group.allow_web.id]
+}
+
+resource "aws_eip" "one" {
+  network_interface         = aws_network_interface.web-server-nic.id
+  associate_with_private_ip = var.private_ip
+  depends_on                = [aws_internet_gateway.gw]
+}
+
+output "server_public_ip" {
+  value = aws_eip.one.public_ip
+}
+
+
+# terraform import aws_instance.example i-xxxxx
+# # 9. Create Ubuntu server and run airflow
+resource "aws_instance" "airflow_server" {
+  ami               = "ami-0084a47cc718c111a"
+  instance_type     = "t2.micro"
+  availability_zone = "${var.region}b"
+  key_name          = "mlflow-host"
+
+  network_interface {
+    device_index         = 0
+    network_interface_id = aws_network_interface.web-server-nic.id
+  }
+
+  tags = {
+    "Name" = "airflow server"
+  }
+
+    user_data = <<-EOF
+                #!/bin/bash
+                sudo apt update -y
+                sudo apt-get install -y python3-pip
+
+
+
+                EOF
+
+  # user_data = <<-EOF
+  #               #!/bin/bash
+  #               sudo apt update -y
+  #               sudo apt install apache2 -y
+  #               sudo systemctl start apache2
+  #               sudo bash -c 'echo your very first web server > /var/www/html/index.html'
+  #               EOF
+
+
+}

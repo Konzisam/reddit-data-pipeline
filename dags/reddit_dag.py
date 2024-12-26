@@ -21,7 +21,7 @@ file_postfix = datetime.now().strftime("%Y%m%d")
 dag = DAG(
     dag_id='etl_reddit_pipeline',
     default_args=default_args,
-    schedule_interval='@daily',
+    schedule_interval='0 18 * * *',
     catchup=False,
     tags=['reddit', 'etl', 'pipeline']
 )
@@ -40,10 +40,10 @@ extract = PythonOperator(
 )
 
 # upload to s3
-# upload_s3 = PythonOperator(
-#     task_id='s3_upload',
-#     python_callable=upload_s3_pipeline,
-#     dag=dag
-# )
+upload_s3 = PythonOperator(
+    task_id='s3_upload',
+    python_callable=upload_s3_pipeline,
+    dag=dag
+)
 
-# extract >> upload_s3
+extract >> upload_s3
