@@ -35,5 +35,4 @@ resource "aws_glue_job" "reddit_glue_job" {
 #   key    = "glue_scripts/jobs.py"
 #   source = "${local.glue_src_path}job.py"
 #   etag   = filemd5("${local.glue_src_path}job.py")
-#
 # }
