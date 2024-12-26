@@ -5,6 +5,7 @@ on:
     workflows: ["Provision Infrastructure"]  # Trigger after the first workflow completes
     types:
       - completed
+    status: success
 
 jobs:
   deploy:
