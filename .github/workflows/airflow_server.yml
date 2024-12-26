@@ -18,7 +18,8 @@ jobs:
       - name: Retrieve EC2 Public IP
         id: get_ip
         run: |
-          EC2_PUBLIC_IP=${{ github.event.workflow_run.conclusion.outputs.EC2_PUBLIC_IP }} 
+          echo "EC2_PUBLIC_IP from env file: $EC2_PUBLIC_IP" >> $GITHUB_ENV 
+          source $GITHUB_ENV 
           echo "Deploying Airflow to EC2 instance at $EC2_PUBLIC_IP" 
           echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
 
