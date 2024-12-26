@@ -17,8 +17,9 @@ jobs:
 
       - name: Retrieve EC2 Public IP
         run: |
-          echo "Deploying Airflow to EC2 instance at ${{ github.event.workflow_run.outputs.EC2_PUBLIC_IP }}" 
-          echo "EC2_PUBLIC_IP=${{ github.event.workflow_run.outputs.EC2_PUBLIC_IP }}" >> $GITHUB_ENV
+          EC2_PUBLIC_IP=${{ github.event.workflow_run.outputs.EC2_PUBLIC_IP }} 
+          echo "Deploying Airflow to EC2 instance at $EC2_PUBLIC_IP" 
+          echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
 
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.1
