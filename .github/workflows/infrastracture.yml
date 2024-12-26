@@ -17,11 +17,11 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform init and apply
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
 
       - name: Output EC2 Public IP
         run: |
