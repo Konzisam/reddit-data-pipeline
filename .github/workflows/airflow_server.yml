@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Retrieve EC2 Public IP
+        id: get_ip
         run: |
           EC2_PUBLIC_IP=${{ github.event.workflow_run.conclusion.outputs.EC2_PUBLIC_IP }} 
           echo "Deploying Airflow to EC2 instance at $EC2_PUBLIC_IP" 
