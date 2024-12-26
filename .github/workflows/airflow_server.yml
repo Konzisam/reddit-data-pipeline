@@ -19,7 +19,9 @@ jobs:
         id: get_ip
         run: |
           echo "Retrieving EC2_PUBLIC_IP from GITHUB_ENV" 
+          source $GITHUB_ENV  # Ensure the environment variables are correctly sourced
           echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
+
 
       - name: Debug EC2 Public IP
         run: | 
