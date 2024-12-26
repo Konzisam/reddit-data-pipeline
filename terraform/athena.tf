@@ -10,3 +10,4 @@ resource "aws_athena_database" "reddit_athena_db" {
 #   LIMIT 10;
 # EOT
 # }
+#
