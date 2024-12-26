@@ -54,7 +54,7 @@ jobs:
 
       - name: Set output variable
         run: | 
-          echo "::set-output name=EC2_PUBLIC_IP::$EC2_PUBLIC_IP"
+          echo "::set-output name=EC2_PUBLIC_IP::${{ steps.output_ip.outputs.EC2_PUBLIC_IP }}"
 
       - name: Debug EC2 Public IP
         run: |
