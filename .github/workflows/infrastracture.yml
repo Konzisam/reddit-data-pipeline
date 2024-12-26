@@ -55,3 +55,8 @@ jobs:
       - name: Set output variable
         run: | 
           echo "::set-output name=EC2_PUBLIC_IP::$EC2_PUBLIC_IP"
+
+      - name: Debug EC2 Public IP
+        run: |
+          echo "EC2_PUBLIC_IP from output: ${{ github.event.workflow_run.conclusion.outputs.EC2_PUBLIC_IP }}"
+          echo "EC2_PUBLIC_IP from env: ${{ env.EC2_PUBLIC_IP }}"
