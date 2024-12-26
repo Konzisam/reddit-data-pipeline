@@ -38,7 +38,7 @@ jobs:
         run: |
           cd terraform
           terraform init
-          terraform plan
+          terraform apply --auto-approve
 
       - name: Output EC2 Public IP
         run: |
