@@ -51,3 +51,7 @@ jobs:
           EC2_PUBLIC_IP=$(terraform output -raw server_public_ip)
           echo "EC2 Public IP is $EC2_PUBLIC_IP"
           echo "EC2_PUBLIC_IP=$EC2_PUBLIC_IP" >> $GITHUB_ENV
+
+      - name: Set output variable
+        run: | 
+          echo "::set-output name=EC2_PUBLIC_IP::$EC2_PUBLIC_IP"
