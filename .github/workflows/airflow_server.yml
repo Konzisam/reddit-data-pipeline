@@ -43,6 +43,17 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
 
+
+
+      - name: Debug SSH Private Key
+        run: |
+          echo "Length of EC2_SSH_KEY: ${#EC2_SSH_KEY}"
+
+      - name: Check ec2_key.pem
+        run: |
+          ls -l ec2_key.pem
+          cat ec2_key.pem
+
       - name: Test SSH Connection
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
@@ -52,7 +63,11 @@ jobs:
         run: |
           echo "GitHub Workspace: ${{ github.workspace }}"
           ls -l ${{ github.workspace }}/ec2_key.pem
-          
+
+      - name: Ensure correct permissions on ec2_key.pem
+        run: |
+          chmod 600 ${{ github.workspace }}/ec2_key.pem
+          ls -l ${{ github.workspace }}/ec2_key.pem 
 
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -60,49 +75,52 @@ jobs:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml, config, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
+          source: "docker-compose.yml, Dockerfile, config, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
           target: /home/ubuntu/airflow/
           debug: true
 
-      - name: Debug AIRFLOW_CORE_FERNET_KEY Secret
-        run: |
-          echo "Length of AIRFLOW_CORE_FERNET_KEY: ${AIRFLOW_CORE_FERNET_KEY}"
-        
-
-
       - name: SSH to EC2 and set up
         run: |
-          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
           #!/bin/bash
-      
-          # Update and install dependencies
           sudo apt update -y
-          sudo apt-get install -y python3-pip curl jq
-      
-          # Create the airflow.env file with environment variables
-          echo "Creating airflow.env file"
-          cat <<EOT > /home/ubuntu/airflow/airflow.env
-          AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-          AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-          AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
-          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
-          AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-          AIRFLOW__CORE__LOGGING_LEVEL=INFO
-          AIRFLOW__CORE__LOAD_EXAMPLES=False
-          AIRFLOW_ADMIN_USERNAME=admin
-          AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
-          AIRFLOW_ADMIN_PASSWORD=admin
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=postgres
-          POSTGRES_DB=airflow_reddit
-          EOT
-      
-          # Navigate to the Airflow directory and run Docker Compose
-          echo "Navigating to the Airflow directory"
-          cd /home/ubuntu/airflow
-          docker-compose up -d
-          
-          docker ps -a
-          docker-compose logs -f
-      
+          sudo apt-get install -y python3-pip
+
+          # check verison of docker and compose
+          docker --version
+          docker-compose --version
+          EOF
+
+      - name: Add secrets
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
+            cat <<EOT > /home/ubuntu/airflow/airflow.env
+            AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+            AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+            AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
+            AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
+            AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+            AIRFLOW__CORE__LOGGING_LEVEL=INFO
+            AIRFLOW__CORE__LOAD_EXAMPLES=False
+            AIRFLOW_ADMIN_USERNAME=admin
+            AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
+            AIRFLOW_ADMIN_PASSWORD=admin
+            POSTGRES_USER=postgres
+            POSTGRES_PASSWORD=postgres
+            POSTGRES_DB=airflow_reddit
+            EOT
+            echo "airflow.env file created"
+          EOF
+
+
+      - name: SSH to EC2 and Deploy Airflow
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
+            echo "Build image"
+            
+            echo "Navigating to the directory"
+            cd /home/ubuntu/airflow/
+
+            echo "Running docker-compose"
+            docker-compose up -d build
           EOF
