@@ -15,6 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
       - name: Retrieve EC2 Public IP from Outputs
         run: |
           aws s3 cp s3://samkons-reddit-dataengineering/ec2_public_ip.txt ec2_public_ip.txt
