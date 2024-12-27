@@ -32,6 +32,10 @@ jobs:
         run: |
           echo "EC2_PUBLIC_IP from GITHUB_ENV: ${{ env.EC2_PUBLIC_IP }}"
 
+      - name: Add EC2 Host Key
+        run: |
+          ssh-keyscan -H ${{ env.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
       - name: Ensure Required Directories Exist
         run: |
           mkdir -p logs dags data config plugins tests
@@ -61,8 +65,6 @@ jobs:
       - name: Test SSH Connection
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
-
-
 
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
