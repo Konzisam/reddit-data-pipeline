@@ -37,7 +37,6 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ env.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
 
-
       - name: Ensure Required Directories Exist
         run: |
           mkdir -p logs dags data config plugins tests
