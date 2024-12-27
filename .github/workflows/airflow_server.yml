@@ -79,6 +79,12 @@ jobs:
           target: /home/ubuntu/airflow/
           debug: true
 
+      - name: Debug AIRFLOW_CORE_FERNET_KEY Secret
+        run: |
+          echo "Length of AIRFLOW_CORE_FERNET_KEY: ${#secrets.AIRFLOW_CORE_FERNET_KEY}"
+          echo "AIRFLOW_CORE_FERNET_KEY: ${{ secrets.AIRFLOW_CORE_FERNET_KEY }}"
+
+
       - name: SSH to EC2 and set up
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
@@ -121,12 +127,12 @@ jobs:
           AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
           AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
           AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
-          AIRFLOW__CORE__FERNET_KEY=${{ secrets.AIRFLOW_CORE_FERNET_KEY }}
+          AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
           AIRFLOW__CORE__LOGGING_LEVEL=INFO
           AIRFLOW__CORE__LOAD_EXAMPLES=False
           AIRFLOW_ADMIN_USERNAME=admin
           AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
-          AIRFLOW_ADMIN_PASSWORD=${{ secrets.AIRFLOW_ADMIN_PASSWORD }}
+          AIRFLOW_ADMIN_PASSWORD=admin
           POSTGRES_USER=postgres
           POSTGRES_PASSWORD=postgres
           POSTGRES_DB=airflow_reddit
