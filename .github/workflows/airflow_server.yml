@@ -122,9 +122,8 @@ jobs:
           docker pull samkons/samkons-custom-airflow:latest
       
           echo "Navigating to the Airflow directory"
-          mkdir -p /home/ubuntu/airflow
           cd /home/ubuntu/airflow
       
           echo "Running Docker Compose"
-          docker-compose --env-file airflow.env up -d
+          docker-compose up -d
           EOF
