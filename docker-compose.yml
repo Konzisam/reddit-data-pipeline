@@ -5,7 +5,7 @@ x-airflow-common:
     dockerfile: Dockerfile
   image: custom-airflow:2.7.1-python3.9
   env_file:
-    - /home/ubuntu/airflow/airflow.env
+    - ./airflow.env
   volumes:
     - ./config:/opt/airflow/config
     - ./dags:/opt/airflow/dags
@@ -26,7 +26,7 @@ services:
   postgres:
     image: postgres:12
     env_file:
-      - /home/ubuntu/airflow/airflow.env
+      - airflow.env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -41,6 +41,10 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    environment:
+      AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME}
+      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
+      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
     command: >
       bash -c "pip install -r /opt/airflow/requirements.txt &&
                  airflow db init &&
