@@ -25,12 +25,10 @@ x-airflow-common:
 services:
   postgres:
     image: postgres:12
-    env_file:
-      - airflow.env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: airflow_reddit
     ports:
       - "5432:5432"
 
@@ -41,12 +39,6 @@ services:
 
   airflow-init:
     <<: *airflow-common
-    env_file:
-      - airflow.env
-    environment:
-      AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME}
-      AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
-      AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
     command:
       - bash
       - -c
@@ -55,10 +47,10 @@ services:
           airflow db init && \
           airflow db upgrade && \
           airflow users create \
-              --username ${AIRFLOW_ADMIN_USERNAME} \
+              --username admin\
               --firstname admin --lastname admin \
-              --role Admin --email ${AIRFLOW_ADMIN_EMAIL} \
-              --password ${AIRFLOW_ADMIN_PASSWORD}
+              --role Admin --email airflow@airflow.com \
+              --password admin
     restart: "no"
 
   airflow-webserver:
