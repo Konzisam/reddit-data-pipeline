@@ -15,10 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Retrieve EC2 Public IP
-        run: echo "EC2_PUBLIC_IP=${{ github.event.workflow_run.outputs.ec2_public_ip }}"
-
-
+      - name: Retrieve EC2 Public IP from Outputs
+        run: |
+          echo "EC2_PUBLIC_IP=${{ github.event.workflow_run.outputs.ec2_public_ip }}"
+          echo "EC2_PUBLIC_IP=${{ github.event.workflow_run.outputs.ec2_public_ip }}" >> $GITHUB_ENV
 
       - name: Debug EC2 Public IP
         run: | 
