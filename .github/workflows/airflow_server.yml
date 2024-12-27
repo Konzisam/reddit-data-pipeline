@@ -17,7 +17,7 @@ jobs:
 
       - name: Retrieve EC2 Public IP from Outputs
         run: |
-          aws s3 cp s3://$TF_VAR_s3_bucket/ec2_public_ip.txt ec2_public_ip.txt
+          aws s3 cp s3://samkons-reddit-dataengineering/ec2_public_ip.txt ec2_public_ip.txt
 
       - name: Debug EC2 Public IP
         run: | 
