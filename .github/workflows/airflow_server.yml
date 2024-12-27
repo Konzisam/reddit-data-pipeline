@@ -97,10 +97,6 @@ jobs:
           POSTGRES_DB=airflow_reddit
           EOT
       
-          # Pull the Airflow Docker image
-          echo "Pulling Airflow Docker image"
-          docker pull samkons/samkons-custom-airflow:latest
-      
           # Navigate to the Airflow directory and run Docker Compose
           echo "Navigating to the Airflow directory"
           cd /home/ubuntu/airflow
