@@ -47,15 +47,18 @@ services:
       AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME}
       AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
       AIRFLOW_ADMIN_EMAIL: ${AIRFLOW_ADMIN_EMAIL}
-    command: >
-      bash -c "pip install -r /opt/airflow/requirements.txt &&
-                 airflow db init &&
-                 airflow db upgrade &&
-                 airflow users create 
-                  --username ${AIRFLOW_ADMIN_USERNAME} 
-                  --firstname admin --lastname admin 
-                  --role Admin --email ${AIRFLOW_ADMIN_EMAIL} 
-                  --password ${AIRFLOW_ADMIN_PASSWORD}"
+    command:
+      - bash
+      - -c
+      - |
+          pip install -r /opt/airflow/requirements.txt && \
+          airflow db init && \
+          airflow db upgrade && \
+          airflow users create \
+              --username ${AIRFLOW_ADMIN_USERNAME} \
+              --firstname admin --lastname admin \
+              --role Admin --email ${AIRFLOW_ADMIN_EMAIL} \
+              --password ${AIRFLOW_ADMIN_PASSWORD}
     restart: "no"
 
   airflow-webserver:
