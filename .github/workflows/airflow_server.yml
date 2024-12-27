@@ -89,7 +89,7 @@ jobs:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ./docker-compose.yml ./dags
+          source: ./docker-compose.yml ./requirements.txt
           target: /home/ubuntu/airflow/
 
       - name: Ensure Required Directories Exist
