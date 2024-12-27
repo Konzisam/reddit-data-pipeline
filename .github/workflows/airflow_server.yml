@@ -79,42 +79,43 @@ jobs:
           target: /home/ubuntu/airflow/
           debug: true
 
-      - name: Ensure Required Directories Exist on EC2
-        run: |
-          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
-            mkdir -p /home/ubuntu/airflow/logs
-            mkdir -p /home/ubuntu/airflow/dags
-            mkdir -p /home/ubuntu/airflow/data
-            mkdir -p /home/ubuntu/airflow/config
-            mkdir -p /home/ubuntu/airflow/plugins
-            mkdir -p /home/ubuntu/airflow/tests
-            echo "Directories created or already exist"
-          EOF
-
       - name: SSH to EC2 and set up
         run: |
-          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
           #!/bin/bash
+      
+          # Update and install dependencies
           sudo apt update -y
           sudo apt-get install -y python3-pip curl jq
+      
+          # Install Docker
           curl -fsSL https://get.docker.com -o get-docker.sh
           sudo sh get-docker.sh
-          
-          # Add user to Docker group (so you don't need sudo to run docker)
           sudo usermod -aG docker ubuntu
-          
           newgrp docker
-          
+      
           # Install Docker Compose
           sudo apt-get install -y curl
           sudo curl -L "https://github.com/docker/compose/releases/download/\$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          
+      
           # Verify Docker and Docker Compose installation
           docker --version
           docker-compose --version
-         
-          echo "Creating airflow.env with secrets"
+      
+          # Create required directories with appropriate permissions
+          create_directories() {
+            dirs=("logs" "dags" "data" "config" "plugins" "tests")
+            for dir in "${dirs[@]}"; do
+              mkdir -p /home/ubuntu/airflow/$dir
+              sudo chown -R ubuntu:ubuntu /home/ubuntu/airflow/$dir
+            done
+          }
+      
+          create_directories
+      
+          # Create the airflow.env file with environment variables
+          echo "Creating airflow.env file"
           cat <<EOT > /home/ubuntu/airflow/airflow.env
           AIRFLOW__CORE__EXECUTOR=CeleryExecutor
           AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
@@ -125,19 +126,19 @@ jobs:
           AIRFLOW__CORE__LOAD_EXAMPLES=False
           AIRFLOW_ADMIN_USERNAME=admin
           AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
-          AIRFLOW_ADMIN_PASSWORD=$admin
+          AIRFLOW_ADMIN_PASSWORD=${{ secrets.AIRFLOW_ADMIN_PASSWORD }}
           POSTGRES_USER=postgres
           POSTGRES_PASSWORD=postgres
           POSTGRES_DB=airflow_reddit
           EOT
-          echo "airflow.env file created"
-        
+      
+          # Pull the Airflow Docker image
           echo "Pulling Airflow Docker image"
           docker pull samkons/samkons-custom-airflow:latest
       
+          # Navigate to the Airflow directory and run Docker Compose
           echo "Navigating to the Airflow directory"
           cd /home/ubuntu/airflow
-      
-          echo "Running Docker Compose"
           docker-compose up -d
+      
           EOF
