@@ -95,12 +95,8 @@ jobs:
 
 
       - name: SSH to EC2 and Deploy Airflow
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
             echo "Pulling Airflow Docker image"
             docker pull samkons/samkons-custom-airflow:latest
 
@@ -109,3 +105,4 @@ jobs:
 
             echo "Running docker-compose"
             docker-compose up -d
+          EOF
