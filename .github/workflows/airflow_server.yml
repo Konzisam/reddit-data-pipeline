@@ -94,22 +94,23 @@ jobs:
       - name: Add secrets
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
-            cat <<EOT > /home/ubuntu/airflow/airflow.env
-            AIRFLOW__CORE__EXECUTOR=CeleryExecutor
-            AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-            AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
-            AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
-            AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-            AIRFLOW__CORE__LOGGING_LEVEL=INFO
-            AIRFLOW__CORE__LOAD_EXAMPLES=False
-            AIRFLOW_ADMIN_USERNAME=admin
-            AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
-            AIRFLOW_ADMIN_PASSWORD=admin
-            POSTGRES_USER=postgres
-            POSTGRES_PASSWORD=postgres
-            POSTGRES_DB=airflow_reddit
-            EOT
-            echo "airflow.env file created"
+          echo "Creating airflow.env file..."
+          cat <<EOT > /home/ubuntu/airflow/airflow.env
+          AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+          AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+          AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
+          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
+          AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+          AIRFLOW__CORE__LOGGING_LEVEL=INFO
+          AIRFLOW__CORE__LOAD_EXAMPLES=False
+          AIRFLOW_ADMIN_USERNAME=admin
+          AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
+          AIRFLOW_ADMIN_PASSWORD=admin
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=airflow_reddit
+          EOT
+          echo "airflow.env file created"
           EOF
 
 
