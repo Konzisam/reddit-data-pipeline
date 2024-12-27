@@ -78,7 +78,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ github.workspace }}/ec2_key.pem
+          key_path: ${{ github.workspace }}/ec2_key.pem
           source: ./docker-compose.yml
           target: /home/ubuntu/airflow/
 
@@ -87,7 +87,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ github.workspace }}/ec2_key.pem
+          key_path: ${{ github.workspace }}/ec2_key.pem
           source: ./config ./dags ./data ./etls ./logs ./pipelines ./plugins ./tests ./utils ./glue_job ./requirements.txt
           target: /home/ubuntu/airflow/  # Target directory on EC2
 
@@ -96,7 +96,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ github.workspace }}/ec2_key.pem
+          key_path: ${{ github.workspace }}/ec2_key.pem
           script: |
             echo "Pulling Airflow Docker image"
             docker pull samkons/samkons-custom-airflow:latest
