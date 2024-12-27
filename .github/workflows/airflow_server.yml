@@ -89,7 +89,7 @@ jobs:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml, ./config, ./dags,  ./etls, ./logs, ./pipelines,  ./utils, ./glue_job, ./requirements.txt"
+          source: "docker-compose.yml, config, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
           target: /home/ubuntu/airflow/
           debug: true
 
