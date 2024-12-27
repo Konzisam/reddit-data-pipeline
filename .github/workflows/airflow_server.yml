@@ -79,6 +79,18 @@ jobs:
           target: /home/ubuntu/airflow/
           debug: true
 
+      - name: Ensure Required Directories Exist on EC2
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
+            mkdir -p /home/ubuntu/airflow/logs
+            mkdir -p /home/ubuntu/airflow/dags
+            mkdir -p /home/ubuntu/airflow/data
+            mkdir -p /home/ubuntu/airflow/config
+            mkdir -p /home/ubuntu/airflow/plugins
+            mkdir -p /home/ubuntu/airflow/tests
+            echo "Directories created or already exist"
+          EOF
+
       - name: SSH to EC2 and set up
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
