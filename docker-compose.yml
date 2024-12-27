@@ -18,6 +18,7 @@ x-airflow-common:
   depends_on:
     - postgres
     - redis
+  user: "1000:1000"
 
 services:
   postgres:
