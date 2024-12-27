@@ -86,19 +86,16 @@ jobs:
           mkdir -p logs dags data config plugins tests
           echo "Directories created or already exist"
 
-      - name: List contents of source directories
+      - name: Check if directories exist in GitHub repository
         run: |
-          ls -l ./config
-          ls -l ./dags
-          ls -l ./data
-          ls -l ./etls
-          ls -l ./logs
-          ls -l ./pipelines
-          ls -l ./plugins
-          ls -l ./tests
-          ls -l ./utils
-          ls -l ./glue_job
-          ls -l ./requirements.txt
+          echo "Checking directories in the GitHub repository..."
+          for dir in config dags data etls logs pipelines plugins tests utils glue_job; do
+            if [ -d "./$dir" ]; then
+              echo "$dir exists in GitHub repo."
+            else
+              echo "$dir does not exist in GitHub repo."
+            fi
+          done
 
 
       - name: Upload Application Files to EC2
@@ -109,6 +106,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: ./config ./dags ./data ./etls ./logs ./pipelines ./plugins ./tests ./utils ./glue_job ./requirements.txt
           target: /home/ubuntu/airflow/
+          debug: true
 
       - name: SSH to EC2 and Deploy Airflow
         uses: appleboy/scp-action@v0.1.7
