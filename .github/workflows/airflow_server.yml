@@ -54,6 +54,10 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
 
+      - name: Ensure correct permissions on ec2_key.pem
+        run: |
+          chmod 600 ${{ github.workspace }}/ec2_key.pem
+
       - name: Debug SSH Private Key
         run: |
           echo "Length of EC2_SSH_KEY: ${#EC2_SSH_KEY}"
@@ -89,7 +93,7 @@ jobs:
           username: ubuntu
           key_path: ${{ github.workspace }}/ec2_key.pem
           source: ./config ./dags ./data ./etls ./logs ./pipelines ./plugins ./tests ./utils ./glue_job ./requirements.txt
-          target: /home/ubuntu/airflow/  # Target directory on EC2
+          target: /home/ubuntu/airflow/
 
       - name: SSH to EC2 and Deploy Airflow
         uses: appleboy/ssh-action@v0.1.1
