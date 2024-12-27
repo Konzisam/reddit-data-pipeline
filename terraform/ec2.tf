@@ -82,6 +82,14 @@ resource "aws_security_group" "allow_web" {
     cidr_blocks = [var.ssh_cidr_block]
   }
 
+  ingress {
+  description = "Airflow Webserver"
+  from_port   = 8080
+  to_port     = 8080
+  protocol    = "tcp"
+  cidr_blocks = [var.web_access_cidr_blocks]
+}
+
   egress {
     from_port   = 0
     to_port     = 0
