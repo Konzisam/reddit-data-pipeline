@@ -49,16 +49,28 @@ jobs:
           ls -l ./docker-compose.yml
           ls -l ./config || echo "Config directory not found"
 
-      - name: Debug GitHub Workspace and SSH Key
+      - name: Decode SSH Private Key
         run: |
-          echo "GitHub Workspace: ${{ github.workspace }}"
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
 
+      - name: Debug SSH Private Key
+        run: |
+          echo "Length of EC2_SSH_KEY: ${#EC2_SSH_KEY}"
+
+      - name: Check ec2_key.pem
+        run: |
+          ls -l ec2_key.pem
+          cat ec2_key.pem
 
       - name: Test SSH Connection
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" | ssh -i /dev/stdin ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
 
-
+      - name: Debug GitHub Workspace and SCP Key Path
+        run: |
+          echo "GitHub Workspace: ${{ github.workspace }}"
+          ls -l ${{ github.workspace }}/ec2_key.pem
 
 
       - name: Upload docker-compose.yml to EC2
@@ -66,7 +78,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ${{ github.workspace }}/ec2_key.pem
           source: ./docker-compose.yml
           target: /home/ubuntu/airflow/
 
@@ -75,7 +87,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ${{ github.workspace }}/ec2_key.pem
           source: ./config ./dags ./data ./etls ./logs ./pipelines ./plugins ./tests ./utils ./glue_job ./requirements.txt
           target: /home/ubuntu/airflow/  # Target directory on EC2
 
@@ -84,7 +96,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ${{ github.workspace }}/ec2_key.pem
           script: |
             echo "Pulling Airflow Docker image"
             docker pull samkons/samkons-custom-airflow:latest
