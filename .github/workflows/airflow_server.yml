@@ -52,8 +52,6 @@ jobs:
       - name: Debug SSH Private Key
         run: |
           echo "Length of EC2_SSH_KEY: ${#EC2_SSH_KEY}"
-      
-
 
       - name: Check ec2_key.pem
         run: |
