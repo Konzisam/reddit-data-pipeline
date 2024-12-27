@@ -94,21 +94,6 @@ jobs:
           sudo apt update -y
           sudo apt-get install -y python3-pip curl jq
       
-          # Install Docker
-          curl -fsSL https://get.docker.com -o get-docker.sh
-          sudo sh get-docker.sh
-          sudo usermod -aG docker ubuntu
-          newgrp docker
-      
-          # Install Docker Compose
-          sudo apt-get install -y curl
-          sudo curl -L "https://github.com/docker/compose/releases/download/\$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-      
-          # Verify Docker and Docker Compose installation
-          docker --version
-          docker-compose --version
-      
           # Create required directories with appropriate permissions
           create_directories() {
             dirs=("logs" "dags" "data" "config" "plugins" "tests")
@@ -117,9 +102,7 @@ jobs:
               sudo chown -R ubuntu:ubuntu /home/ubuntu/airflow/$dir
             done
           }
-      
-          create_directories
-      
+
           # Create the airflow.env file with environment variables
           echo "Creating airflow.env file"
           cat <<EOT > /home/ubuntu/airflow/airflow.env
