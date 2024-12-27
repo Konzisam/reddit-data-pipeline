@@ -17,6 +17,6 @@ while IFS='=' read -r key value; do
         echo "Setting secret: $key"
         gh secret set "$key" --repo "$REPO" --body "$value"
     fi
-done < .env
+done < airflow.env
 
 echo "All set!"

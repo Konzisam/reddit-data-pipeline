@@ -79,12 +79,12 @@ jobs:
           target: /home/ubuntu/airflow/
           debug: true
 
-      - name: SSH to EC2 and Deploy Airflow
+      - name: SSH to EC2 and set up
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
           #!/bin/bash
           sudo apt update -y
-          sudo apt-get install -y python3-pip
+          sudo apt-get install -y python3-pip curl jq
           curl -fsSL https://get.docker.com -o get-docker.sh
           sudo sh get-docker.sh
           
@@ -99,18 +99,32 @@ jobs:
           # Verify Docker and Docker Compose installation
           docker --version
           docker-compose --version
-          EOF
-
-
-      - name: SSH to EC2 and Deploy Airflow
-        run: |
-          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
-            echo "Pulling Airflow Docker image"
-            docker pull samkons/samkons-custom-airflow:latest
-
-            echo "Navigating to the directory"
-            cd /home/ubuntu/airflow/
-
-            echo "Running docker-compose"
-            docker-compose up -d
+         
+          echo "Creating airflow.env with secrets"
+          cat <<EOT > /home/ubuntu/airflow/airflow.env
+          AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+          AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+          AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
+          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
+          AIRFLOW__CORE__FERNET_KEY=${{ secrets.AIRFLOW_CORE_FERNET_KEY }}
+          AIRFLOW__CORE__LOGGING_LEVEL=INFO
+          AIRFLOW__CORE__LOAD_EXAMPLES=False
+          AIRFLOW_ADMIN_USERNAME=${{ secrets.AIRFLOW_ADMIN_USERNAME }}
+          AIRFLOW_ADMIN_EMAIL=${{ secrets.AIRFLOW_ADMIN_EMAIL }}
+          AIRFLOW_ADMIN_PASSWORD=${{ secrets.AIRFLOW_ADMIN_PASSWORD }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          EOT
+          echo "airflow.env file created"
+        
+          echo "Pulling Airflow Docker image"
+          docker pull samkons/samkons-custom-airflow:latest
+      
+          echo "Navigating to the Airflow directory"
+          mkdir -p /home/ubuntu/airflow
+          cd /home/ubuntu/airflow
+      
+          echo "Running Docker Compose"
+          docker-compose --env-file airflow.env up -d
           EOF
