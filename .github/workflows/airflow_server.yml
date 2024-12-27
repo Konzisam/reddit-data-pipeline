@@ -49,28 +49,16 @@ jobs:
           ls -l ./docker-compose.yml
           ls -l ./config || echo "Config directory not found"
 
-      - name: Decode SSH Private Key
+      - name: Debug GitHub Workspace and SSH Key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
-          chmod 600 ec2_key.pem
+          echo "GitHub Workspace: ${{ github.workspace }}"
 
-      - name: Debug SSH Private Key
-        run: |
-          echo "Length of EC2_SSH_KEY: ${#EC2_SSH_KEY}"
-
-      - name: Check ec2_key.pem
-        run: |
-          ls -l ec2_key.pem
-          cat ec2_key.pem
 
       - name: Test SSH Connection
         run: |
-          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
+          echo "${{ secrets.EC2_SSH_KEY }}" | ssh -i /dev/stdin ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
 
-      - name: Debug GitHub Workspace and SCP Key Path
-        run: |
-          echo "GitHub Workspace: ${{ github.workspace }}"
-          ls -l ${{ github.workspace }}/ec2_key.pem
+
 
 
       - name: Upload docker-compose.yml to EC2
