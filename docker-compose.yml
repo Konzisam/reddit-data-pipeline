@@ -40,7 +40,14 @@ services:
   airflow-init:
     <<: *airflow-common
     command: >
-      bash -c "pip install -r /opt/airflow/requirements.txt && airflow db init && airflow db upgrade && airflow users create --username admin --firstname admin --lastname admin --role Admin --email airflow@airflow.com --password admin"
+      bash -c "
+        # Ensure the airflow user has permissions to necessary directories
+        chown -R airflow:airflow /opt/airflow && \
+        pip install -r /opt/airflow/requirements.txt && \
+        airflow db init && \
+        airflow db upgrade && \
+        airflow users create --username admin --firstname admin --lastname admin --role Admin --email airflow@airflow.com --password admin
+      "
     restart: "no"
 
   airflow-webserver:
@@ -48,6 +55,8 @@ services:
     command: webserver
     ports:
       - "8080:8080"
+    volumes:
+      - ./logs:/opt/airflow/logs
 
   airflow-scheduler:
     <<: *airflow-common
