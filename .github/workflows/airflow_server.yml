@@ -15,10 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Debug S3 bucket name
-        run:
-          echo "S3 Bucket Name: $TF_VAR_s3_bucket"
-
       - name: Retrieve EC2 Public IP from Outputs
         run: |
           aws s3 cp s3://$TF_VAR_s3_bucket/ec2_public_ip.txt ec2_public_ip.txt
