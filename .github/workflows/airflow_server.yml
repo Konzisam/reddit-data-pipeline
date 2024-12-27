@@ -81,8 +81,8 @@ jobs:
 
       - name: Debug AIRFLOW_CORE_FERNET_KEY Secret
         run: |
-          echo "Length of AIRFLOW_CORE_FERNET_KEY: ${#secrets.AIRFLOW_CORE_FERNET_KEY}"
-          echo "AIRFLOW_CORE_FERNET_KEY: ${{ secrets.AIRFLOW_CORE_FERNET_KEY }}"
+          echo "Length of AIRFLOW_CORE_FERNET_KEY: ${#AIRFLOW_CORE_FERNET_KEY}"
+        
 
 
       - name: SSH to EC2 and set up
