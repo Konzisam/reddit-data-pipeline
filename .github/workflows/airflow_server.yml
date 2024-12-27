@@ -123,12 +123,12 @@ jobs:
           AIRFLOW__CORE__FERNET_KEY=${{ secrets.AIRFLOW_CORE_FERNET_KEY }}
           AIRFLOW__CORE__LOGGING_LEVEL=INFO
           AIRFLOW__CORE__LOAD_EXAMPLES=False
-          AIRFLOW_ADMIN_USERNAME=${{ secrets.AIRFLOW_ADMIN_USERNAME }}
-          AIRFLOW_ADMIN_EMAIL=${{ secrets.AIRFLOW_ADMIN_EMAIL }}
-          AIRFLOW_ADMIN_PASSWORD=${{ secrets.AIRFLOW_ADMIN_PASSWORD }}
-          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          AIRFLOW_ADMIN_USERNAME=admin
+          AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
+          AIRFLOW_ADMIN_PASSWORD=$admin
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=airflow_reddit
           EOT
           echo "airflow.env file created"
         
