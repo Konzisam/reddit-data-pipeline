@@ -41,6 +41,8 @@ services:
 
   airflow-init:
     <<: *airflow-common
+    env_file:
+      - airflow.env
     environment:
       AIRFLOW_ADMIN_USERNAME: ${AIRFLOW_ADMIN_USERNAME}
       AIRFLOW_ADMIN_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD}
