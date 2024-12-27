@@ -139,9 +139,19 @@ resource "aws_instance" "airflow_server" {
                 #!/bin/bash
                 sudo apt update -y
                 sudo apt-get install -y python3-pip
+                curl -fsSL https://get.docker.com -o get-docker.sh
+                sudo sh get-docker.sh
 
+                # Add user to Docker group (so you don't need sudo to run docker)
+                sudo usermod -aG docker ubuntu
 
+                sudo apt-get install -y curl
+                sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                sudo chmod +x /usr/local/bin/docker-compose
 
+                # Verify Docker and Docker Compose installation
+                docker --version
+                docker-compose --version
                 EOF
 
   # user_data = <<-EOF
