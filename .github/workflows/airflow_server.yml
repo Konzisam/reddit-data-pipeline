@@ -91,6 +91,8 @@ jobs:
           # Add user to Docker group (so you don't need sudo to run docker)
           sudo usermod -aG docker ubuntu
           
+          newgrp docker
+          
           # Install Docker Compose
           sudo apt-get install -y curl
           sudo curl -L "https://github.com/docker/compose/releases/download/\$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
