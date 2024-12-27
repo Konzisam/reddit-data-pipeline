@@ -43,17 +43,6 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
 
-
-
-      - name: Debug SSH Private Key
-        run: |
-          echo "Length of EC2_SSH_KEY: ${#EC2_SSH_KEY}"
-
-      - name: Check ec2_key.pem
-        run: |
-          ls -l ec2_key.pem
-          cat ec2_key.pem
-
       - name: Test SSH Connection
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
@@ -63,11 +52,7 @@ jobs:
         run: |
           echo "GitHub Workspace: ${{ github.workspace }}"
           ls -l ${{ github.workspace }}/ec2_key.pem
-
-      - name: Ensure correct permissions on ec2_key.pem
-        run: |
-          chmod 600 ${{ github.workspace }}/ec2_key.pem
-          ls -l ${{ github.workspace }}/ec2_key.pem 
+          
 
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -94,15 +79,6 @@ jobs:
           sudo apt update -y
           sudo apt-get install -y python3-pip curl jq
       
-          # Create required directories with appropriate permissions
-          create_directories() {
-            dirs=("logs" "dags" "data" "config" "plugins" "tests")
-            for dir in "${dirs[@]}"; do
-              mkdir -p /home/ubuntu/airflow/$dir
-              sudo chown -R ubuntu:ubuntu /home/ubuntu/airflow/$dir
-            done
-          }
-
           # Create the airflow.env file with environment variables
           echo "Creating airflow.env file"
           cat <<EOT > /home/ubuntu/airflow/airflow.env
@@ -129,5 +105,8 @@ jobs:
           echo "Navigating to the Airflow directory"
           cd /home/ubuntu/airflow
           docker-compose up -d
+          
+          docker ps -a
+          docker-compose logs -f
       
           EOF
