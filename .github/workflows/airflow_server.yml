@@ -123,5 +123,5 @@ jobs:
             cd /home/ubuntu/airflow/
 
             echo "Running docker-compose"
-            docker-compose up -d build
+            docker-compose up -d --build
           EOF
