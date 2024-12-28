@@ -129,6 +129,6 @@ jobs:
             echo "Running docker-compose"
             docker-compose down --rmi all
           
-          docker compose up airflow-initF
+          docker compose up airflow-init
             docker-compose --env-file ./airflow.env up -d --build
           EOF
