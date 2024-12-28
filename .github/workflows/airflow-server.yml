@@ -28,29 +28,25 @@ jobs:
           export EC2_PUBLIC_IP=$(cat ec2_public_ip.txt)
           echo "EC2_PUBLIC_IP=${EC2_PUBLIC_IP}" >> $GITHUB_ENV
 
-
       - name: Add EC2 Host Key and check
         run: |
           echo "EC2_PUBLIC_IP from GITHUB_ENV: ${{ env.EC2_PUBLIC_IP }}"
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ env.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
 
-
       - name: Decode SSH Private Key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
 
-
       - name: Test SSH Connection
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
 
-
       - name: Ensure correct permissions on ec2_key.pem
         run: |
           chmod 600 ${{ github.workspace }}/ec2_key.pem
-          ls -l ${{ github.workspace }}/ec2_key.pem 
+          ls -l ${{ github.workspace }}/ec2_key.pem
 
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -58,7 +54,7 @@ jobs:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml, Dockerfile, config, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
+          source: "docker-compose.yml, Dockerfile, config, dags, etls, logs, pipelines, utils, glue_job, requirements.txt"
           target: /home/ubuntu/airflow/
           debug: true
 
@@ -70,7 +66,7 @@ jobs:
           sudo apt update -y
           sudo apt-get install -y python3-pip
           
-          # install docekr
+          # Install Docker
           curl -fsSL https://get.docker.com -o get-docker.sh
           sudo sh get-docker.sh
           sudo usermod -aG docker ubuntu
@@ -80,12 +76,11 @@ jobs:
           sudo apt-get install -y curl jq
           sudo curl -L https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-      
-          # check version of docker and compose
+          
+          # Check versions
           docker --version
           docker-compose --version
           EOF
-
 
       - name: Add secrets
         run: |
@@ -109,7 +104,6 @@ jobs:
           echo "airflow.env file created"
           EOF
 
-
       - name: SSH to EC2 and Deploy Airflow
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
@@ -122,17 +116,16 @@ jobs:
             mkdir -p ./dags ./logs ./plugins
             
             # Set correct permissions for directories
-            sudo chmod -R 777 dags logs  plugins 
+            sudo chmod -R 777 dags logs plugins 
             
             echo "Removing existing Docker containers and volumes..."
       
             # Initialize Airflow database
             echo "Running Airflow initialization..."
 #            docker-compose up airflow-init
-      
+
             echo "Initialization complete. Now starting other services..."
       
             # Start the remaining Airflow services
 #            docker-compose --env-file ./airflow.env up -d --build
           EOF
-
