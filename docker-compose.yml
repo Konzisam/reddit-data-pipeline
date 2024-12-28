@@ -43,6 +43,8 @@ services:
     command: >
       bash -c "
         # Ensure the airflow user has permissions to necessary directories
+        chown -R admin:admin /opt/airflow && \
+        chmod -R 755 /opt/airflow/logs && \
         pip install -r /opt/airflow/requirements.txt && \
         airflow db init && \
         airflow db upgrade && \
