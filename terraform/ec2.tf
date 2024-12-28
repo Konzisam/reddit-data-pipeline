@@ -156,24 +156,24 @@ resource "aws_instance" "airflow_server" {
     "Name" = "airflow server"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update -y",
-      "sudo apt-get install -y python3-pip",
-      "curl -fsSL https://get.docker.com -o get-docker.sh",
-      "sudo sh get-docker.sh",
-      "sudo usermod -aG docker ubuntu",
-      "sudo apt-get install -y curl jq",
-      "sudo curl -L \"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose",
-      "sudo chmod +x /usr/local/bin/docker-compose"
-    ]
-  }
-
-  # Connection block for remote execution
-  connection {
-    type = "ssh"
-    user = "ubuntu"
-    private_key = file("/c/Users/konzi/.ssh/mlflow-host.pem")
-    host = self.public_ip
-  }
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "sudo apt-get update -y",
+  #     "sudo apt-get install -y python3-pip",
+  #     "curl -fsSL https://get.docker.com -o get-docker.sh",
+  #     "sudo sh get-docker.sh",
+  #     "sudo usermod -aG docker ubuntu",
+  #     "sudo apt-get install -y curl jq",
+  #     "sudo curl -L \"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose",
+  #     "sudo chmod +x /usr/local/bin/docker-compose"
+  #   ]
+  # }
+  #
+  # # Connection block for remote execution
+  # connection {
+  #   type = "ssh"
+  #   user = "ubuntu"
+  #   private_key = file("/c/Users/konzi/.ssh/mlflow-host.pem")
+  #   host = self.public_ip
+  # }
 }
