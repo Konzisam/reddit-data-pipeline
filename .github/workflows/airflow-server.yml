@@ -111,7 +111,8 @@ jobs:
 
       # Build the custom-airflow image
       - name: Build custom-airflow image
-        run: docker-compose build custom-airflow
+        run: |
+          docker-compose build custom-airflow
 
       - name: SSH to EC2 and Deploy Airflow
         run: |
