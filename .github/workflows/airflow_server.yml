@@ -66,20 +66,19 @@ jobs:
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
           #!/bin/bash
           sudo apt update -y
-         sudo apt-get install -y python3-pip
-         curl -fsSL https://get.docker.com -o get-docker.sh
-         sudo sh get-docker.sh
-         sudo usermod -aG docker ubuntu
-         sudo apt-get install -y curl jq
-         sudo curl -L https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-         sudo chmod +x /usr/local/bin/docker-compose
-
-          
-
-          # check versison of docker and compose
+          sudo apt-get install -y python3-pip
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          sudo usermod -aG docker ubuntu
+          sudo apt-get install -y curl jq
+          sudo curl -L https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+      
+          # check version of docker and compose
           docker --version
           docker-compose --version
           EOF
+
 
       - name: Add secrets
         run: |
