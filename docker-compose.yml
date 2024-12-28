@@ -18,7 +18,7 @@ x-airflow-common:
     - ./utils:/opt/airflow/utils
    # - ./airflow.cfg:/opt/airflow/airflow.cfg
     - ./requirements.txt:/opt/airflow/requirements.txt
-  user: "1000:1000"
+  user: "0:501"
   depends_on:
     - postgres
     - redis
