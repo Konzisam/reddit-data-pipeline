@@ -2,7 +2,7 @@ name: Deploy Airflow to EC2
 
 on:
   workflow_run:
-    workflows: ["Provision Infrastructure"]  # Trigger after the first workflow completes
+    workflows: [ "Provision Infrastructure" ]  # Trigger after the first workflow completes
     types:
       - completed
     status: success
@@ -86,7 +86,7 @@ jobs:
           sudo apt update -y
           sudo apt-get install -y python3-pip
 
-          # check verison of docker and compose
+          # check versison of docker and compose
           docker --version
           docker-compose --version
           EOF
@@ -118,11 +118,17 @@ jobs:
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
             echo "Build image"
-            
+          
             echo "Navigating to the directory"
             cd /home/ubuntu/airflow/
+          
+             echo "Removing existing Docker containers and volumes..."
+            docker-compose down --volumes --rmi all || echo "No existing containers to remove"
+            docker system prune -af --volumes || echo "No unused resources to clean"
 
             echo "Running docker-compose"
             docker-compose down --rmi all
+          
+          docker compose up airflow-initF
             docker-compose --env-file ./airflow.env up -d --build
           EOF
