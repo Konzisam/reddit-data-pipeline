@@ -134,7 +134,7 @@ resource "aws_instance" "airflow_server" {
   availability_zone = "${var.region}b"
   key_name          = "mlflow-host"
 
-    # Root volume configuration (part of Free Tier)
+  # Root volume configuration (part of Free Tier)
   root_block_device {
     volume_size = 20            # Root volume size within Free Tier (<= 30 GiB)
     volume_type = "gp3"         # General Purpose SSD, Free Tier eligible
@@ -156,28 +156,24 @@ resource "aws_instance" "airflow_server" {
     "Name" = "airflow server"
   }
 
-    user_data = <<-EOF
-                #!/bin/bash
-                sudo apt update -y
-                sudo apt-get install -y python3-pip
-                curl -fsSL https://get.docker.com -o get-docker.sh
-                sudo sh get-docker.sh
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt-get update -y",
+      "sudo apt-get install -y python3-pip",
+      "curl -fsSL https://get.docker.com -o get-docker.sh",
+      "sudo sh get-docker.sh",
+      "sudo usermod -aG docker ubuntu",
+      "sudo apt-get install -y curl jq",
+      "sudo curl -L \"https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose",
+      "sudo chmod +x /usr/local/bin/docker-compose"
+    ]
+  }
 
-                # Add user to Docker group (so you don't need sudo to run docker)
-                sudo usermod -aG docker ubuntu
-
-                sudo apt-get install -y curl
-                sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                sudo chmod +x /usr/local/bin/docker-compose
-                EOF
-
-  # user_data = <<-EOF
-  #               #!/bin/bash
-  #               sudo apt update -y
-  #               sudo apt install apache2 -y
-  #               sudo systemctl start apache2
-  #               sudo bash -c 'echo your very first web server > /var/www/html/index.html'
-  #               EOF
-
-
+  # Connection block for remote execution
+  connection {
+    type = "ssh"
+    user = "ubuntu"
+    private_key = file("/c/Users/konzi/.ssh/mlflow-host.pem")
+    host = self.public_ip
+  }
 }
