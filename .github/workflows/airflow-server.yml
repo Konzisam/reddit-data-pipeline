@@ -1,0 +1,141 @@
+name: Deploy Airflow to EC2
+
+on:
+  workflow_run:
+    workflows: [ "Provision Infrastructure" ]  # Trigger after the first workflow completes
+    types:
+      - completed
+    status: success
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Retrieve EC2 Public IP from S3
+        run: |
+          aws s3 cp s3://samkons-reddit-dataengineering/ec2_public_ip.txt ec2_public_ip.txt
+          export EC2_PUBLIC_IP=$(cat ec2_public_ip.txt)
+          echo "EC2_PUBLIC_IP=${EC2_PUBLIC_IP}" >> $GITHUB_ENV
+
+
+      - name: Add EC2 Host Key and check
+        run: |
+          echo "EC2_PUBLIC_IP from GITHUB_ENV: ${{ env.EC2_PUBLIC_IP }}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ env.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
+
+      - name: Decode SSH Private Key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+
+      - name: Test SSH Connection
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
+
+
+      - name: Ensure correct permissions on ec2_key.pem
+        run: |
+          chmod 600 ${{ github.workspace }}/ec2_key.pem
+          ls -l ${{ github.workspace }}/ec2_key.pem 
+
+      - name: Upload docker-compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.yml, Dockerfile, config, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
+          target: /home/ubuntu/airflow/
+          debug: true
+
+      - name: SSH to EC2 and set up
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
+          #!/bin/bash
+          # Update and install dependencies
+          sudo apt update -y
+          sudo apt-get install -y python3-pip
+          
+          # install docekr
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          sudo usermod -aG docker ubuntu
+          newgrp docker
+          
+          # Install Docker Compose
+          sudo apt-get install -y curl jq
+          sudo curl -L https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r .tag_name)/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+      
+          # check version of docker and compose
+          docker --version
+          docker-compose --version
+          EOF
+
+
+      - name: Add secrets
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
+          echo "Creating airflow.env file..."
+          cat <<EOT > /home/ubuntu/airflow/airflow.env
+          AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+          AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
+          AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://postgres:postgres@postgres:5432/airflow_reddit
+          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow_reddit
+          AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+          AIRFLOW__CORE__LOGGING_LEVEL=INFO
+          AIRFLOW__CORE__LOAD_EXAMPLES=False
+          AIRFLOW_ADMIN_USERNAME=admin
+          AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
+          AIRFLOW_ADMIN_PASSWORD=admin
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=airflow_reddit
+          EOT
+          echo "airflow.env file created"
+          EOF
+
+      # Build the custom-airflow image
+      - name: Build custom-airflow image
+        run: docker-compose build custom-airflow
+
+      - name: SSH to EC2 and Deploy Airflow
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
+            echo "Building Docker image..."
+            
+            echo "Navigating to the Airflow directory"
+            cd /home/ubuntu/airflow/
+            
+            # Create necessary directories
+            mkdir -p ./dags ./logs ./plugins
+            
+            # Set correct permissions for directories
+            sudo chmod -R 777 dags logs  plugins 
+            
+            echo "Removing existing Docker containers and volumes..."
+      
+            # Initialize Airflow database
+            echo "Running Airflow initialization..."
+#            docker-compose up airflow-init
+      
+            echo "Initialization complete. Now starting other services..."
+      
+            # Start the remaining Airflow services
+#            docker-compose --env-file ./airflow.env up -d --build
+          EOF
+
