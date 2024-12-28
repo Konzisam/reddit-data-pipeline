@@ -112,22 +112,26 @@ jobs:
       - name: SSH to EC2 and Deploy Airflow
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
-            echo "Build image"
-          
-            echo "Navigating to the directory"
+            echo "Building Docker image..."
+            
+            echo "Navigating to the Airflow directory"
             cd /home/ubuntu/airflow/
-            mkdir ./dags ./logs ./plugins
-          
+            
+            # Create necessary directories
+            mkdir -p ./dags ./logs ./plugins
+            
+            # Set correct permissions for directories
             sudo chmod -R 777 dags logs config etls pipelines plugins tests utils
-          
-             echo "Removing existing Docker containers and volumes..."
-#            docker-compose down --volumes --rmi all || echo "No existing containers to remove"
-#            docker system prune -af --volumes || echo "No unused resources to clean"
-
-            echo "Running airflow init"
-#            docker-compose down --rmi all
-          
+            
+            echo "Removing existing Docker containers and volumes..."
+      
+            # Initialize Airflow database
+            echo "Running Airflow initialization..."
             docker-compose up airflow-init
-            echo "Init complete now spinning the other services"
+      
+            echo "Initialization complete. Now starting other services..."
+      
+            # Start the remaining Airflow services
             docker-compose --env-file ./airflow.env up -d --build
           EOF
+
