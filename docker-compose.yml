@@ -18,7 +18,7 @@ x-airflow-common:
     - ./utils:/opt/airflow/utils
    # - ./airflow.cfg:/opt/airflow/airflow.cfg
     - ./requirements.txt:/opt/airflow/requirements.txt
-  user: "1000:0"
+  user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     - postgres
     - redis
@@ -41,13 +41,7 @@ services:
   airflow-init:
     <<: *airflow-common
     command: >
-      bash -c "
-        # Ensure the airflow user has permissions to necessary directories
-        pip install -r /opt/airflow/requirements.txt && \
-        airflow db init && \
-        airflow db upgrade && \
-        airflow users create --username admin --firstname admin --lastname admin --role Admin --email airflow@airflow.com --password admin
-      "
+      bash -c "pip install -r /opt/airflow/requirements.txt && airflow db init && airflow db upgrade && airflow users create --username admin --firstname admin --lastname admin --role Admin --email airflow@airflow.com --password admin"
     restart: "no"
 
   airflow-webserver:

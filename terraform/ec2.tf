@@ -134,6 +134,19 @@ resource "aws_instance" "airflow_server" {
   availability_zone = "${var.region}b"
   key_name          = "mlflow-host"
 
+    # Root volume configuration (part of Free Tier)
+  root_block_device {
+    volume_size = 20            # Root volume size within Free Tier (<= 30 GiB)
+    volume_type = "gp3"         # General Purpose SSD, Free Tier eligible
+  }
+
+  # Additional EBS volume (part of Free Tier)
+  ebs_block_device {
+    device_name = "/dev/xvdb"   # Specify the device name
+    volume_size = 20            # Size of the additional volume (<= 30 GiB)
+    volume_type = "gp3"         # General Purpose SSD, Free Tier eligible
+    delete_on_termination = true # Ensure volume is deleted with instance
+  }
   network_interface {
     device_index         = 0
     network_interface_id = aws_network_interface.web-server-nic.id
@@ -146,7 +159,7 @@ resource "aws_instance" "airflow_server" {
     user_data = <<-EOF
                 #!/bin/bash
                 sudo apt update -y
-                # sudo apt-get install -y python3-pip
+                sudo apt-get install -y python3-pip
                 # curl -fsSL https://get.docker.com -o get-docker.sh
                 # sudo sh get-docker.sh
                 #
