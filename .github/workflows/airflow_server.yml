@@ -116,16 +116,18 @@ jobs:
           
             echo "Navigating to the directory"
             cd /home/ubuntu/airflow/
+            mkdir ./dags ./logs ./plugins
           
             sudo chmod -R 777 dags logs config etls pipelines plugins tests utils
           
              echo "Removing existing Docker containers and volumes..."
-            docker-compose down --volumes --rmi all || echo "No existing containers to remove"
-            docker system prune -af --volumes || echo "No unused resources to clean"
+#            docker-compose down --volumes --rmi all || echo "No existing containers to remove"
+#            docker system prune -af --volumes || echo "No unused resources to clean"
 
-            echo "Running docker-compose"
-            docker-compose down --rmi all
+            echo "Running airflow init"
+#            docker-compose down --rmi all
           
             docker-compose up airflow-init
+            echo "Init complete now spinning the other services"
             docker-compose --env-file ./airflow.env up -d --build
           EOF
