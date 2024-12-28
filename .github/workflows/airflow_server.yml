@@ -121,7 +121,7 @@ jobs:
             mkdir -p ./dags ./logs ./plugins
             
             # Set correct permissions for directories
-            sudo chmod -R 777 dags logs config etls pipelines plugins tests utils
+            sudo chmod -R 777 dags logs  plugins 
             
             echo "Removing existing Docker containers and volumes..."
       
