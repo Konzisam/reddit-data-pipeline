@@ -33,6 +33,11 @@ services:
     command: >
       bash -c "pip install -r /opt/airflow/requirements.txt && airflow db init && airflow db upgrade && airflow users create --username admin --firstname admin --lastname admin --role Admin --email airflow@airflow.com --password admin"
     restart: "no"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
 
   airflow-webserver:
     <<: *airflow-common
@@ -41,11 +46,26 @@ services:
       - "8080:8080"
     volumes:
       - ./logs:/opt/airflow/logs
+    deploy:
+      resources:
+        limits:
+          memory: 512M  # Limit memory for the webserver
+          cpus: '0.5'   # Limit CPU for the webserver
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
 
   airflow-worker:
     <<: *airflow-common
     command: celery worker
+    deploy:
+      resources:
+        limits:
+          memory: 256M  # Limit memory for worker
+          cpus: '0.5'   # Limit CPU for worker

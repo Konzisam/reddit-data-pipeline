@@ -13,4 +13,3 @@ variable "web_access_cidr_blocks" {}
 variable "subnet_cidr_block" {}
 variable "db_name" {}
 variable "db_username" {}
-variable "db_password" {}
