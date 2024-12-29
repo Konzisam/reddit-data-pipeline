@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket = "car-predictor"
-    key = "reddit-backend/terraform.tfstate"
+    key    = "reddit-backend/terraform.tfstate"
     region = "eu-central-1"
   }
 

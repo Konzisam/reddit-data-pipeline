@@ -83,12 +83,20 @@ resource "aws_security_group" "allow_web" {
   }
 
   ingress {
-  description = "Airflow Webserver"
-  from_port   = 8080
-  to_port     = 8080
-  protocol    = "tcp"
-  cidr_blocks = [var.web_access_cidr_blocks]
-}
+    description = "Airflow Webserver"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [var.web_access_cidr_blocks]
+  }
+
+  ingress {
+    description = "Airflow db"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   egress {
     from_port   = 0
@@ -136,16 +144,16 @@ resource "aws_instance" "airflow_server" {
 
   # Root volume configuration (part of Free Tier)
   root_block_device {
-    volume_size = 20            # Root volume size within Free Tier (<= 30 GiB)
-    volume_type = "gp3"         # General Purpose SSD, Free Tier eligible
+    volume_size = 20    # Root volume size within Free Tier (<= 30 GiB)
+    volume_type = "gp3" # General Purpose SSD, Free Tier eligible
   }
 
   # Additional EBS volume (part of Free Tier)
   ebs_block_device {
-    device_name = "/dev/xvdb"   # Specify the device name
-    volume_size = 20            # Size of the additional volume (<= 30 GiB)
-    volume_type = "gp3"         # General Purpose SSD, Free Tier eligible
-    delete_on_termination = true # Ensure volume is deleted with instance
+    device_name           = "/dev/xvdb" # Specify the device name
+    volume_size           = 20          # Size of the additional volume (<= 30 GiB)
+    volume_type           = "gp3"       # General Purpose SSD, Free Tier eligible
+    delete_on_termination = true        # Ensure volume is deleted with instance
   }
   network_interface {
     device_index         = 0
