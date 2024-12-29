@@ -83,17 +83,14 @@ jobs:
           cat <<EOT > /home/ubuntu/airflow/airflow.env
           AIRFLOW__CORE__EXECUTOR=CeleryExecutor
           AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/0
-          AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://{{ secrets.POSTGRES_USER }}:{{ secrets.POSTGRES_PASSWORD }}@{{ secrets.POSTGRES_HOST }}/{{ secrets.POSTGRES_DB }}
-          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://{{ secrets.POSTGRES_USER }}:{{ secrets.POSTGRES_PASSWORD }}@{{ secrets.POSTGRES_HOST }}/{{ secrets.POSTGRES_DB }}
-          AIRFLOW__CORE__FERNET_KEY={{ secrets.POSTGRES_USER }}
+          AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/${{ secrets.POSTGRES_DB }}
+          AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}/${{ secrets.POSTGRES_DB }}
+          AIRFLOW__CORE__FERNET_KEY=${{ secrets.FERNET_KEY }}
           AIRFLOW__CORE__LOGGING_LEVEL=INFO
           AIRFLOW__CORE__LOAD_EXAMPLES=False
           AIRFLOW_ADMIN_USERNAME=admin
           AIRFLOW_ADMIN_EMAIL=airflow@airflow.com
           AIRFLOW_ADMIN_PASSWORD=admin
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=postgres
-          POSTGRES_DB=airflow_reddit
           EOT
           echo "airflow.env file created"
           EOF
