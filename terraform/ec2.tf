@@ -138,7 +138,7 @@ output "server_public_ip" {
 # # 9. Create Ubuntu server and run airflow
 resource "aws_instance" "airflow_server" {
   ami               = "ami-0a628e1e89aaedf80"
-  instance_type     = "t2.medium"
+  instance_type     = "t2.small"
   availability_zone = "${var.region}b"
   key_name          = "mlflow-host"
 
