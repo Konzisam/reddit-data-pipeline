@@ -115,9 +115,9 @@ jobs:
       
             # Initialize Airflow database
             echo "Running Airflow initialization..."
-
+            docker compose up airflow-init
 
             echo "Initialization complete. Now starting other services..."
-
+            docker-compose --env-file ./airflow.env up -d --build
             # Start the remaining Airflow services
           EOF

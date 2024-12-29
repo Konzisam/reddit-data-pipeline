@@ -129,8 +129,8 @@ output "server_public_ip" {
 # terraform import aws_instance.example i-xxxxx
 # # 9. Create Ubuntu server and run airflow
 resource "aws_instance" "airflow_server" {
-  ami               = "ami-0084a47cc718c111a"
-  instance_type     = "t2.micro"
+  ami               = "ami-0a628e1e89aaedf80"
+  instance_type     = "t2.medium"
   availability_zone = "${var.region}b"
   key_name          = "mlflow-host"
 
