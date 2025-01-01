@@ -27,21 +27,22 @@ jobs:
           aws s3 cp s3://samkons-reddit-dataengineering/ec2_public_ip.txt ec2_public_ip.txt
           export EC2_PUBLIC_IP=$(cat ec2_public_ip.txt)
           echo "EC2_PUBLIC_IP=${EC2_PUBLIC_IP}" >> $GITHUB_ENV
+
       - name: Add EC2 Host Key
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ env.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
       - name: Decode SSH Private Key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
-      - name: Test SSH Connection
-        run: |
-          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} "echo 'Connection successful'"
+
       - name: Ensure correct permissions on ec2_key.pem
         run: |
           chmod 600 ${{ github.workspace }}/ec2_key.pem
           ls -l ${{ github.workspace }}/ec2_key.pem
+
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -76,7 +77,7 @@ jobs:
           docker-compose --version
           EOF
 
-      - name: Add secrets
+      - name: Add secrets to airflow.en
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
           echo "Creating airflow.env file..."
@@ -94,6 +95,23 @@ jobs:
           EOT
           echo "airflow.env file created"
           EOF
+
+      - name: Add secrets to .env
+        run: |
+          ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
+          echo "Creating .env file..."
+          cat <<EOT > /home/ubuntu/airflow/.env
+          REDDIT_SECRET_KEY=${{ secrets.REDDIT_SECRET_KEY }}
+          REDDIT_CLIENT_ID=${{ secrets.REDDIT_CLIENT_ID}}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          AWS_BUCKET_NAME=${{ secrets.TF_VAR_S3_BUCKET}}
+
+          EOT
+          echo ".env file created"
+          EOF
+
       - name: SSH to EC2 and Deploy Airflow
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
