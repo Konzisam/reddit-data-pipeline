@@ -38,7 +38,7 @@ jobs:
 
       - name: Terraform init and apply
         run: |
-          cd terraform
+          cd infrastructure
           terraform init
           terraform apply --auto-approve
 

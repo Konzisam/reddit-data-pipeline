@@ -9,8 +9,11 @@ resource "aws_lambda_function" "trigger_glue_job" {
 
 data "archive_file" "lambda_package" {
   type        = "zip"
-  source_file = "${path.module}/lambda_function.py"
-  output_path = "${path.module}/lambda_deployment.zip"
+  # source_file = "${path.module}/lambda_function.py"
+  source_file = "${local.glue_src_path}/lambda_function.py"
+  output_path = "${local.glue_src_path}/lambda_deployment.zip"
+  # output_path = "${path.module}/lambda_deployment.zip"
+
 }
 
 resource "aws_iam_role" "lambda_execution_role" {
