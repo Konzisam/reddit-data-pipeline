@@ -1,5 +1,5 @@
 import sys
-import time
+
 import numpy as np
 import pandas as pd
 import praw
@@ -17,7 +17,6 @@ def connect_reddit(client_id, client_secret, user_agent) -> Reddit:
         return reddit
     except Exception as e:
         print(e)
-        print("failed to connect")
         sys.exit(1)
 
 
@@ -28,14 +27,9 @@ def extract_posts(reddit_instance: Reddit, subreddit: str, time_filter: str, lim
     post_lists = []
 
     for post in posts:
-        try:
-            post_dict = vars(post)
-            post = {key: post_dict[key] for key in POST_FIELDS}
-            post_lists.append(post)
-        except Exception as e:
-            print(f"Error processing post: {e}")
-            time.sleep(10)  # Sleep for 10 seconds before retrying to avoid hitting rate limit
-    return post_lists
+        post_dict = vars(post)
+        post = {key: post_dict[key] for key in POST_FIELDS}
+        post_lists.append(post)
 
     return post_lists
 
@@ -50,8 +44,6 @@ def transform_data(post_df: pd.DataFrame):
     post_df['num_comments'] = post_df['num_comments'].astype(int)
     post_df['score'] = post_df['score'].astype(int)
     post_df['title'] = post_df['title'].astype(str)
-    print(post_df.info())
-
 
     return post_df
 
