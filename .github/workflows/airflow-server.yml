@@ -49,7 +49,7 @@ jobs:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose.yml, Dockerfile, config, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
+          source: "docker-compose.yml, Dockerfile, dags,  etls, logs, pipelines, utils, glue_job, requirements.txt"
           target: /home/ubuntu/airflow/
           debug: true
 
@@ -77,7 +77,7 @@ jobs:
           docker-compose --version
           EOF
 
-      - name: Add secrets to airflow.en
+      - name: Add secrets to airflow.env
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
           echo "Creating airflow.env file..."
@@ -100,6 +100,8 @@ jobs:
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
           echo "Creating config.conf file..."
+          
+          mkdir -p /home/ubuntu/airflow/config
           cat <<EOT > /home/ubuntu/airflow/config/config.conf
           [file_paths]
           input_path = /opt/airflow/data/input
