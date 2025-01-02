@@ -22,6 +22,7 @@ x-airflow-common:
   depends_on:
     - redis
 
+
 services:
   redis:
     image: redis:latest

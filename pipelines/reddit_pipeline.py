@@ -18,3 +18,6 @@ def reddit_pipeline(file_name: str, subreddit: str, time_filter='day', limit=Non
     load_data_to_csv(post_df, file_path)
 
     return file_path
+
+# if __name__ == "__main__":
+#     reddit_pipeline('samkons', 'python', limit=2)

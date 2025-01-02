@@ -96,20 +96,32 @@ jobs:
           echo "airflow.env file created"
           EOF
 
-      - name: Add secrets to .env
+      - name: Add secrets to config.conf
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
-          echo "Creating .env file..."
-          cat <<EOT > /home/ubuntu/airflow/.env
-          REDDIT_SECRET_KEY=${{ secrets.REDDIT_SECRET_KEY }}
-          REDDIT_CLIENT_ID=${{ secrets.REDDIT_CLIENT_ID}}
-          AWS_ACCESS_KEY_ID=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-          AWS_REGION=${{ secrets.AWS_REGION }}
-          AWS_BUCKET_NAME=${{ secrets.TF_VAR_S3_BUCKET}}
-
+          echo "Creating config.conf file..."
+          cat <<EOT > /home/ubuntu/airflow/config.conf
+          [file_paths]
+          input_path = /opt/airflow/data/input
+          output_path = /opt/airflow/data/output
+      
+          [api_keys]
+          reddit_secret_key = ${{ secrets.REDDIT_SECRET_KEY }}
+          reddit_client_id = ${{ secrets.REDDIT_CLIENT_ID }}
+      
+          [aws]
+          aws_access_key_id = ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key = ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region = ${{ secrets.AWS_REGION }}
+          aws_bucket_name = ${{ secrets.TF_VAR_S3_BUCKET }}
+      
+          [etl_settings]
+          batch_size = 100
+          error_handling = abort
+          log_level = info
+      
           EOT
-          echo ".env file created"
+          echo "config.conf file created"
           EOF
 
       - name: SSH to EC2 and Deploy Airflow

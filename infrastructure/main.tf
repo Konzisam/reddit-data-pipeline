@@ -45,7 +45,8 @@ module "glue" {
   source          = "./modules/glue"
   s3_bucket              = var.s3_bucket
   glue_service_role_arn  = module.iam.glue_service_role_arn
-  num_workers = 10
+  num_workers = 2
+  glue_src_path = local.glue_src_path
 }
 
 module "athena" {
