@@ -1,4 +1,4 @@
-# End to end data piplein with reddit API
+# End to end data Pipeline with reddit API
 The Reddit data pipeline uses Apache Airflow, hosted on an Amazon EC2 instance, \
 to orchestrate data fetching from Reddit and store it in Amazon S3. \
 AWS Glue Crawlers automatically discover the schema of the raw data in S3 \
