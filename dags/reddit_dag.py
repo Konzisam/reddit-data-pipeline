@@ -13,7 +13,7 @@ from pipelines.aws_s3_pipeline import upload_s3_pipeline
 
 default_args = {
     'owner': 'Samuel Konzi',
-    'start_date': datetime(2024, 10, 18)
+    'start_date': datetime(2025, 1, 2)
 }
 
 file_postfix = datetime.now().strftime("%Y%m%d")
