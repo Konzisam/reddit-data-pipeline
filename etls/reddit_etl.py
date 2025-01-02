@@ -1,5 +1,5 @@
 import sys
-
+import time
 import numpy as np
 import pandas as pd
 import praw
@@ -28,12 +28,14 @@ def extract_posts(reddit_instance: Reddit, subreddit: str, time_filter: str, lim
     post_lists = []
 
     for post in posts:
-        post_dict = vars(post)
-        print("++++++++++++++++", post_dict.keys())
-        post = {key: post_dict[key] for key in POST_FIELDS}
-        post_lists.append(post)
-
-    print("post lists")
+        try:
+            post_dict = vars(post)
+            post = {key: post_dict[key] for key in POST_FIELDS}
+            post_lists.append(post)
+        except Exception as e:
+            print(f"Error processing post: {e}")
+            time.sleep(10)  # Sleep for 10 seconds before retrying to avoid hitting rate limit
+    return post_lists
 
     return post_lists
 
