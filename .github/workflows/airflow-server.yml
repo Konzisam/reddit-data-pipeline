@@ -99,9 +99,17 @@ jobs:
       - name: Add secrets to config.conf
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << 'EOF'
-          echo "Creating config.conf file..."
           
-          mkdir -p /home/ubuntu/airflow/config
+          echo "Navigating to the Airflow directory"
+          cd /home/ubuntu/airflow/
+
+          # Create necessary directories
+          mkdir -p ./dags ./logs ./plugins ./config
+
+          # Set correct permissions for directories
+          sudo chmod -R 777 dags logs  plugins config
+
+          echo "Creating config.conf file..."
           cat <<EOT > /home/ubuntu/airflow/config/config.conf
           [file_paths]
           input_path = /opt/airflow/data/input
@@ -130,17 +138,6 @@ jobs:
         run: |
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
             echo "Building Docker image..."
-
-            echo "Navigating to the Airflow directory"
-            cd /home/ubuntu/airflow/
-
-            # Create necessary directories
-            mkdir -p ./dags ./logs ./plugins
-
-            # Set correct permissions for directories
-            sudo chmod -R 777 dags logs  plugins 
-
-            echo "Removing existing Docker containers and volumes..."
 
             # Initialize Airflow database
             echo "Running Airflow initialization..."
