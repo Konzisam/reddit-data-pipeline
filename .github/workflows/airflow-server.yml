@@ -104,10 +104,10 @@ jobs:
           cd /home/ubuntu/airflow/
 
           # Create necessary directories
-          mkdir -p ./dags ./logs ./plugins ./config
+          mkdir -p ./dags ./logs ./plugins ./config ./data ./data/input ./data/output
 
           # Set correct permissions for directories
-          sudo chmod -R 777 dags logs  plugins config
+          sudo chmod -R 777 dags logs  plugins config ./data
 
           echo "Creating config.conf file..."
           cat <<EOT > /home/ubuntu/airflow/config/config.conf
