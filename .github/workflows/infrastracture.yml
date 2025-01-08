@@ -62,10 +62,10 @@ jobs:
           EC2_PUBLIC_IP="${{ steps.output_ip.outputs.EC2_PUBLIC_IP }}"       
           
           # Check if the file already exists in S3
-          if aws s3 ls s3://$TF_VAR_s3_bucket/ec2_public_ip.txt > /dev/null; then
+          if aws s3 ls s3://$TF_VAR_s3_bucket/ec2/ec2_public_ip.txt > /dev/null; then
             echo "EC2 Public IP already exists in S3. Skipping upload."
           else
             #upload the EC2 Public IP to S3
-            echo $EC2_PUBLIC_IP | aws s3 cp - s3://$TF_VAR_s3_bucket/ec2_public_ip.txt
+            echo $EC2_PUBLIC_IP | aws s3 cp - s3://$TF_VAR_s3_bucket/ec2/ec2_public_ip.txt
             echo "EC2 Public IP saved to S3."
           fi
