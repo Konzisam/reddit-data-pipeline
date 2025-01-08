@@ -23,11 +23,9 @@ def connect_reddit(client_id, client_secret, user_agent) -> Reddit:
 def extract_posts(reddit_instance: Reddit, subreddit: str, time_filter: str, limit=None):
     subreddit = reddit_instance.subreddit(subreddit)
     posts = subreddit.top(time_filter=time_filter, limit=limit)
-    print("these are the posts", posts)
     post_lists = []
 
     for post in posts:
-        print(post)
         post_dict = vars(post)
         post = {key: post_dict[key] for key in POST_FIELDS}
         post_lists.append(post)

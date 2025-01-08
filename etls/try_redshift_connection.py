@@ -1,7 +1,7 @@
 import boto3
 
 def run_glue_job(job_name):
-    glue_client = boto3.client('glue', region_name='eu-central-1')
+    glue_client = boto3.client('glue')
 
     response = glue_client.start_job_run(JobName=job_name)
     job_run_id = response['JobRunId']
@@ -9,7 +9,7 @@ def run_glue_job(job_name):
     return job_run_id
 
 def check_job_status(job_name, job_run_id):
-    glue_client = boto3.client('glue', region_name='eu-central-1')
+    glue_client = boto3.client('glue')
 
 
     response = glue_client.get_job_run(JobName=job_name, RunId=job_run_id)

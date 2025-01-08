@@ -3,7 +3,7 @@ name: Provision Infrastructure
 on:
   push:
     branches:
-      - main  # Trigger on push to the 'main' branch
+      - main
 
 jobs:
   terraform:
@@ -22,6 +22,8 @@ jobs:
       TF_VAR_web_access_cidr_blocks: ${{ secrets.TF_VAR_web_access_cidr_blocks}}
       TF_VAR_db_name: ${{ secrets.POSTGRES_DB }}
       TF_VAR_db_username: ${{ secrets.POSTGRES_USER }}
+      TF_VAR_redshift_password: ${{ secrets.REDSHIFT_PASSWORD }}
+      TF_VAR_redshift_connection_url: ${{ secrets.REDSHIFT_CONNECTION_URL }}
     steps:
       - name: Debug Environment Variables
         run: |

@@ -2,7 +2,7 @@ name: Deploy Airflow to EC2
 
 on:
   workflow_run:
-    workflows: [ "Provision Infrastructure" ]  # Trigger after the first workflow completes
+    workflows: [ "Provision Infrastructure" ]
     types:
       - completed
     status: success
@@ -104,8 +104,8 @@ jobs:
           cd /home/ubuntu/airflow/
 
           # Create necessary directories
-          mkdir -p ./dags ./logs ./plugins ./config ./data ./data/input ./data/output
-
+          mkdir -p ./dags ./logs ./plugins ./config ./data 
+          
           # Set correct permissions for directories
           sudo chmod -R 777 dags logs  plugins config ./data ./data/input ./data/output
 
@@ -139,7 +139,9 @@ jobs:
           ssh -i ec2_key.pem ubuntu@${{ env.EC2_PUBLIC_IP }} << EOF
             echo "Building Docker image..."
             cd /home/ubuntu/airflow/
-
+            echo "create output files"
+            mkdir -p ./data/input ./data/output
+          
             # Initialize Airflow database
             echo "Running Airflow initialization..."
             docker compose up airflow-init
