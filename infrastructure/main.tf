@@ -28,25 +28,29 @@ module "security_groups" {
 }
 
 module "s3" {
-  source        = "./modules/s3"
-  s3_bucket  = var.s3_bucket
+  source              = "./modules/s3"
+  s3_bucket           = var.s3_bucket
   lambda_function_arn = module.lambda.lambda_function_arn
-  lambda_permissions = module.lambda.lambda_permissions
+  lambda_permissions  = module.lambda.lambda_permissions
 }
 
 module "iam" {
-  source = "./modules/iam"
-  s3_bucket = var.s3_bucket
-  account_id = var.account_id
+  source       = "./modules/iam"
+  s3_bucket    = var.s3_bucket
+  account_id   = var.account_id
   glue_job_arn = module.glue.reddit_glue_job_arn
 }
 
 module "glue" {
-  source          = "./modules/glue"
-  s3_bucket              = var.s3_bucket
-  glue_service_role_arn  = module.iam.glue_service_role_arn
-  num_workers = 2
-  glue_src_path = local.glue_src_path
+  source                = "./modules/glue"
+  s3_bucket             = var.s3_bucket
+  glue_service_role_arn = module.iam.glue_service_role_arn
+  num_workers           = 2
+  glue_src_path         = local.glue_src_path
+  redshift_password     = module.ssm.redshift_password
+  subnet_id             = module.vpc.subnet_id
+  jdbc_connection_url   = module.ssm.jdbc_connection_url
+
 }
 
 module "athena" {
@@ -55,37 +59,45 @@ module "athena" {
 }
 
 module "redshift" {
-  source        = "./modules/redshift"
+  source = "./modules/redshift"
 }
 
 module "crawler" {
-  source = "./modules/crawler"
-  s3_bucket = var.s3_bucket
+  source           = "./modules/crawler"
+  s3_bucket        = var.s3_bucket
   crawler_role_arn = module.iam.glue_crawler_role_arn
 
 }
 
 module "lambda" {
-  source = "./modules/lambda"
-  glue_src_path = local.glue_src_path
-  s3_bucket = var.s3_bucket
+  source          = "./modules/lambda"
+  glue_src_path   = local.glue_src_path
+  s3_bucket       = var.s3_bucket
   lambda_role_arn = module.iam.lambda_role_arn
 }
 
 module "ec2" {
-  source = "./modules/ec2"
-  ami = "ami-0a628e1e89aaedf80"
-  instance_type = "t2.medium"
-  private_ip = var.private_ip
-  key_name = "mlflow-host"
+  source            = "./modules/ec2"
+  ami               = "ami-0a628e1e89aaedf80"
+  instance_type     = "t2.medium"
+  private_ip        = var.private_ip
+  key_name          = "mlflow-host"
   security_group_id = module.security_groups.security_group_id
-  subnet_id = module.vpc.subnet_id
-  internet_gateway = module.vpc.internet_gateway
-  region = var.region
+  subnet_id         = module.vpc.subnet_id
+  internet_gateway  = module.vpc.internet_gateway
+  region            = var.region
 }
 
 module "rds" {
-  source = "./modules/rds"
-  db_name = var.db_name
+  source      = "./modules/rds"
+  db_name     = var.db_name
   db_username = var.db_username
+}
+
+module "ssm" {
+  source                        = "./modules/ssm"
+  redshift_password             = var.redshift_password
+  redshift_connection_url       = var.redshift_connection_url
+  s3_bucket                     = var.s3_bucket
+  glue_redshift_connection_name = module.glue.glue_redshift_connection_name
 }

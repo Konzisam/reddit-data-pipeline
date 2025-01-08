@@ -2,6 +2,10 @@ output "glue_service_role_arn" {
   value = aws_iam_role.glue_service_role.arn
 }
 
+output "glue_service_role_name" {
+  value = aws_iam_role.glue_service_role.name
+}
+
 output "glue_crawler_role_arn" {
   value = aws_iam_role.glue_crawler_role.arn
 }

@@ -1,9 +1,10 @@
-resource "aws_redshiftserverless_workgroup" "reddit_workgroup" {
-  namespace_name = aws_redshiftserverless_namespace.reddit_namespace.namespace_name
-  workgroup_name = "reddit-workgroup"
-  base_capacity  = 64
-}
-
+# resource "aws_redshiftserverless_workgroup" "reddit_workgroup" {
+#   namespace_name = aws_redshiftserverless_namespace.reddit_namespace.namespace_name
+#   workgroup_name = "reddit-workgroup"
+#   base_capacity  = 0
+#   publicly_accessible = true
+# }
+#
 data "aws_iam_role" "redshift_role" {
   name = "AmazonRedshift-CommandsAccessRole-20241005T234228"
 }
