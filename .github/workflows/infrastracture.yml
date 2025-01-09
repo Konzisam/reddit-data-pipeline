@@ -1,6 +1,6 @@
 name: Provision Infrastructure
 
-#on:
+on:
 #  push:
 #    branches:
 #      - main
