@@ -38,4 +38,4 @@ This pipeline demonstrates efficient data processing, querying, and visualizatio
 
 ## Architechture diagram
 
-![Funny Cat](https://github.com/Konzisam/car_price_estimator/blob/main/architechture.gif)
+![Funny Cat](https://github.com/Konzisam/reddit-data-pipeline/blob/main/architechture.mp4)
