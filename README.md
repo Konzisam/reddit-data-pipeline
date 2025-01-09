@@ -38,4 +38,4 @@ This pipeline demonstrates efficient data processing, querying, and visualizatio
 
 ## Architechture diagram
 
-![Funny Cat](https://github.com/Konzisam/reddit-data-pipeline/blob/main/architechture.mp4)
+![Funny Cat](https://github.com/Konzisam/reddit-data-pipeline/blob/main/architechture.gif)
