@@ -1,9 +1,9 @@
 # End to end data Pipeline with reddit API
-The Reddit data pipeline uses Apache Airflow, hosted on an Amazon EC2 instance, to orchestrate data fetching from Reddit and store it in Amazon S3.\
-AWS Glue Crawlers automatically discover the schema of the raw data in S3 and create a catalog in the AWS Glue Data Catalog.\
-The raw data is then transformed using AWS Glue based on the discovered schema, and the transformed data is loaded into Amazon Redshift for analysis. \
-Amazon Athena is used for serverless SQL querying of the raw data in S3, allowing for quick analysis and validation. \
-Finally, the processed data is visualized with Amazon QuickSight, providing interactive dashboards and insights. \
+The Reddit data pipeline uses Apache Airflow, hosted on an Amazon EC2 instance, to orchestrate data fetching from Reddit and store it in Amazon S3.
+AWS Glue Crawlers automatically discover the schema of the raw data in S3 and create a catalog in the AWS Glue Data Catalog.
+The raw data is then transformed using AWS Glue based on the discovered schema, and the transformed data is loaded into Amazon Redshift for analysis. 
+Amazon Athena is used for serverless SQL querying of the raw data in S3, allowing for quick analysis and validation. 
+Finally, the processed data is visualized with Amazon QuickSight, providing interactive dashboards and insights. 
 This pipeline enables efficient data processing, querying, and visualization of Reddit data.
 
 ### Key Features:
