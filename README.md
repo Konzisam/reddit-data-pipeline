@@ -35,3 +35,7 @@ This pipeline demonstrates efficient data processing, querying, and visualizatio
 * **Terraform:** Automate the provisioning nad ensure consitency of deployment of cloud infrastracture(IaC)
 
 * **Github Actions:** Automation CI/CD processes, enabling consistent execution of the etl code and infrastructure.
+
+## Architechture diagram
+
+![Funny Cat](https://github.com/Konzisam/car_price_estimator/blob/main/architechture.gif)
